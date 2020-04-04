@@ -53,7 +53,7 @@ namespace CovidIndexer
         {
            List<DataDoc> docs = new List<DataDoc>();
            
-           for(int i=11;i<chunks.Length;++i)
+           for(int i=11+dateOffset;i<chunks.Length;++i)
            {
                var dt = DateTime.ParseExact(chunks[i],"M/d/yy",null);
                var k = new DataDoc();
