@@ -13,12 +13,13 @@ namespace CovidIndexer
         Stream stream;
         string indexName;
         ElasticClient esclient;
-       
-        public CreateIndexFormatUS(Stream stream,string indexName,ElasticClient esclient)
+        int dateOffset=0;
+        public CreateIndexFormatUS(Stream stream,string indexName,ElasticClient esclient,int dateOffset = 0)
         {
             this.indexName = indexName;
             this.stream = stream;
             this.esclient = esclient;
+            this.dateOffset = 0;
         }
         public async Task IndexAsync()
         {
@@ -40,10 +41,10 @@ namespace CovidIndexer
                         one.CountryRegion = tokens[7];
                         one.ProvinceState = tokens[6];
                     }
-                    for(int i=11;i<tokens.Length;i++)
+                    for(int i=11+dateOffset;i<tokens.Length;i++)
                     {
-                        dates[i-11].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
-                        var response = await esclient.IndexAsync(dates[i-11],idx=>idx.Index(indexName) );
+                        dates[i-11-dateOffset].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
+                        var response = await esclient.IndexAsync(dates[i-11-dateOffset],idx=>idx.Index(indexName) );
                     }
                 }
             }

@@ -22,7 +22,7 @@ namespace CovidIndexer
             var stream = await client.GetStreamAsync("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv");
             await new CreateIndexFormatUS(stream,"covid19_confirmed_us",esclient).IndexAsync();
             stream = await client.GetStreamAsync("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv");
-            await new CreateIndexFormatUS(stream,"covid19_deaths_us",esclient).IndexAsync();
+            await new CreateIndexFormatUS(stream,"covid19_deaths_us",esclient,1).IndexAsync();
             stream = await client.GetStreamAsync("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv");
             await new CreateIndexFormatGlobal(stream,"covid19_confirmed_global",esclient).IndexAsync();
             stream = await client.GetStreamAsync("https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv");
