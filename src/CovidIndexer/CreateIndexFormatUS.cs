@@ -19,7 +19,7 @@ namespace CovidIndexer
             this.indexName = indexName;
             this.stream = stream;
             this.esclient = esclient;
-            this.dateOffset = 0;
+            this.dateOffset = dateOffset;
         }
         public async Task IndexAsync()
         {
