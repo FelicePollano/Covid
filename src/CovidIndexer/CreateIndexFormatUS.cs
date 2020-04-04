@@ -42,8 +42,8 @@ namespace CovidIndexer
                     }
                     for(int i=11;i<tokens.Length;i++)
                     {
-                        dates[i-4].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
-                        var response = esclient.IndexAsync(dates[i-4],idx=>idx.Index(indexName) );
+                        dates[i-11].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
+                        var response = esclient.IndexAsync(dates[i-11],idx=>idx.Index(indexName) );
                     }
                 }
             }
