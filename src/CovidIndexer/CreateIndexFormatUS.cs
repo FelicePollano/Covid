@@ -33,6 +33,7 @@ namespace CovidIndexer
                 CsvParser parser = new CsvParser(sr,CultureInfo.InvariantCulture);
                 var tokens = await parser.ReadAsync();
                 var dates = ExtractTimeStamps(tokens);
+                int total =0;
                 while(null!=(tokens = await parser.ReadAsync()))
                 {
                     foreach(var one in dates)
@@ -45,7 +46,8 @@ namespace CovidIndexer
                     {
                         dates[i-11-dateOffset].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
                     }
-                    Console.WriteLine($"indexing {dates.Length} documents in {indexName}");
+                    total += dates.Length;
+                    Console.WriteLine($"indexing {dates.Length} documents in {indexName} - {total} so far.");
                     var response = await esclient.IndexManyAsync(dates,indexName);
                 }
             }
