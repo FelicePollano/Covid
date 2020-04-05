@@ -43,8 +43,10 @@ namespace CovidIndexer
                     for(int i=4;i<tokens.Length;i++)
                     {
                         dates[i-4].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
-                        var response = esclient.IndexAsync(dates[i-4],idx=>idx.Index(indexName) );
+                       
                     }
+                    Console.WriteLine($"indexing {dates.Length} documents in {indexName}");
+                    var response = await esclient.IndexManyAsync(dates,indexName);
                 }
             }
         }
