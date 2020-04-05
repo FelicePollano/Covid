@@ -27,6 +27,7 @@ namespace CovidIndexer
                 .AutoMap<DataDoc>() 
             )       
             );
+            int total = 0;
             using(var sr = new StreamReader(stream))
             {
                 CsvParser parser = new CsvParser(sr,CultureInfo.InvariantCulture);
@@ -45,7 +46,8 @@ namespace CovidIndexer
                         dates[i-4].Value = double.Parse(tokens[i],CultureInfo.InvariantCulture);
                        
                     }
-                    Console.WriteLine($"indexing {dates.Length} documents in {indexName}");
+                    total += dates.Length;
+                    Console.WriteLine($"indexing {dates.Length} documents in {indexName} - {total} so far.");
                     var response = await esclient.IndexManyAsync(dates,indexName);
                 }
             }
