@@ -37,7 +37,7 @@ namespace CovidIndexer
             else //italy mode
             {
                 var stream = await client.GetStreamAsync("https://github.com/pcm-dpc/COVID-19/raw/master/dati-province/dpc-covid19-ita-province.csv"); 
-                await new CreateIndexFormatItalyRegions(stream,"covid19_italy_confirmed_prov",esclient).IndexAsync();
+                await new CreateIndexFormatItalyProv(stream,"covid19_italy_confirmed_prov",esclient).IndexAsync();
             }
             
             

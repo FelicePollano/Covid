@@ -8,13 +8,13 @@ using Nest;
 
 namespace CovidIndexer
 {
-    public class CreateIndexFormatItalyRegions
+    public class CreateIndexFormatItalyProv
     {
         Stream stream;
         string indexName;
         ElasticClient esclient;
        
-        public CreateIndexFormatItalyRegions(Stream stream,string indexName,ElasticClient esclient)
+        public CreateIndexFormatItalyProv(Stream stream,string indexName,ElasticClient esclient)
         {
             this.indexName = indexName;
             this.stream = stream;
@@ -28,6 +28,11 @@ namespace CovidIndexer
                 .AutoMap<DataDoc>() 
             )       
             );
+            createIndexResponse = esclient.Indices.Create(indexName+"_increase", c => c
+            .Map<DataDoc>(m => m
+                .AutoMap<DataDoc>() 
+            )       
+            );
             using(var sr = new StreamReader(stream))
             {
                 CsvParser parser = new CsvParser(sr,CultureInfo.InvariantCulture);
@@ -35,6 +40,8 @@ namespace CovidIndexer
                 
                 int total =0;
                 List<DataDoc> list = new List<DataDoc>();
+                 List<DataDoc> listIncrease = new List<DataDoc>();
+                Dictionary<string,double> seen = new Dictionary<string,double>();
                 while(null!=(tokens = await parser.ReadAsync()))
                 {
                     total++;
@@ -46,24 +53,23 @@ namespace CovidIndexer
                     d.Value=double.Parse(tokens[9],CultureInfo.InvariantCulture);
                     var n = tokens[0].IndexOf("T");
                     d.TimeStamp = DateTime.ParseExact(tokens[0].Substring(0,n),"yyyy-M-d",null);
+                    if(seen.ContainsKey(d.CountryRegion+d.ProvinceState))
+                    {
+                        var inc = new DataDoc();
+                        inc.CountryRegion = d.CountryRegion;
+                        inc.ProvinceState = d.ProvinceState;
+                        inc.TimeStamp = d.TimeStamp;
+                        inc.Location = d.Location;
+                        inc.Value = d.Value-seen[d.CountryRegion+d.ProvinceState];
+                        listIncrease.Add(inc);
+                    }
+                    seen[d.CountryRegion+d.ProvinceState]=d.Value;
 
                 }
                 Console.WriteLine($"Indexing {list.Count} in {indexName}");
                 var response = await esclient.IndexManyAsync(list,indexName);
+                response = await esclient.IndexManyAsync(listIncrease,indexName+"_increase");
             }
-        }
-        private DataDoc[]  ExtractTimeStamps(string[] chunks)
-        {
-           List<DataDoc> docs = new List<DataDoc>();
-           
-           for(int i=11;i<chunks.Length;++i)
-           {
-               var dt = DateTime.ParseExact(chunks[i],"M/d/yy",null);
-               var k = new DataDoc();
-               k.TimeStamp = dt;
-               docs.Add(k);
-           }   
-           return docs.ToArray();
         }
     }
 
