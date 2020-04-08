@@ -38,6 +38,9 @@ namespace CovidIndexer
             {
                 var stream = await client.GetStreamAsync("https://github.com/pcm-dpc/COVID-19/raw/master/dati-province/dpc-covid19-ita-province.csv"); 
                 await new CreateIndexFormatItalyProv(stream,"covid19_italy_confirmed_prov",esclient).IndexAsync();
+                stream = await client.GetStreamAsync("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-regioni/dpc-covid19-ita-regioni.csv");
+                await new CreateIndexFormatItalyRegions(stream,"covid19_italy_regions",esclient).IndexAsync();
+
             }
             
             

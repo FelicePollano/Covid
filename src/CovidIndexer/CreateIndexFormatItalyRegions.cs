@@ -8,13 +8,13 @@ using Nest;
 
 namespace CovidIndexer
 {
-    public class CreateIndexFormatItalyProv
+    public class CreateIndexFormatItalyRegions
     {
         Stream stream;
         string indexName;
         ElasticClient esclient;
        
-        public CreateIndexFormatItalyProv(Stream stream,string indexName,ElasticClient esclient)
+        public CreateIndexFormatItalyRegions(Stream stream,string indexName,ElasticClient esclient)
         {
             this.indexName = indexName;
             this.stream = stream;
@@ -39,37 +39,29 @@ namespace CovidIndexer
                 var tokens = await parser.ReadAsync(); //skip first line
                 
                 int total =0;
-                List<DataDoc> list = new List<DataDoc>();
-                 List<DataDoc> listIncrease = new List<DataDoc>();
-                Dictionary<string,double> seen = new Dictionary<string,double>();
+                List<DataDocRegion> list = new List<DataDocRegion>();
+                 List<DataDocRegion> listIncrease = new List<DataDocRegion>();
+               
                 while(null!=(tokens = await parser.ReadAsync()))
                 {
                     total++;
-                    var d = new DataDoc();
+                    var d = new DataDocRegion();
                     list.Add(d);
-                    d.CountryRegion = tokens[3];
-                    d.ProvinceState = tokens[5];
-                    d.Location=new GeoLocation(double.Parse(tokens[7],CultureInfo.InvariantCulture),double.Parse(tokens[8],CultureInfo.InvariantCulture));
-                    d.Value=double.Parse(tokens[9],CultureInfo.InvariantCulture);
+                    d.Region = tokens[3];
+                   
+                    d.Location=new GeoLocation(double.Parse(tokens[4],CultureInfo.InvariantCulture),double.Parse(tokens[5],CultureInfo.InvariantCulture));
+                    d.Positive=double.Parse(tokens[10],CultureInfo.InvariantCulture);
+                    d.Recovered=double.Parse(tokens[6],CultureInfo.InvariantCulture);
+                    d.RecoveredIntensive=double.Parse(tokens[7],CultureInfo.InvariantCulture);
+                    d.Tested=double.Parse(tokens[16],CultureInfo.InvariantCulture);
                     var n = tokens[0].IndexOf("T");
                     d.TimeStamp = DateTime.ParseExact(tokens[0].Substring(0,n),"yyyy-M-d",null);
-                    if(seen.ContainsKey(d.CountryRegion+d.ProvinceState))
-                    {
-                        var inc = new DataDoc();
-                        inc.CountryRegion = d.CountryRegion;
-                        inc.ProvinceState = d.ProvinceState;
-                        inc.TimeStamp = d.TimeStamp;
-                        inc.Location = d.Location;
-                        inc.Value = d.Value-seen[d.CountryRegion+d.ProvinceState];
-                        listIncrease.Add(inc);
-                    }
-                    seen[d.CountryRegion+d.ProvinceState]=d.Value;
+                    
 
                 }
                 Console.WriteLine($"Indexing {list.Count} in {indexName}");
                 var response = await esclient.IndexManyAsync(list,indexName);
-                Console.WriteLine($"Indexing {listIncrease.Count} in {indexName}_increase");
-                response = await esclient.IndexManyAsync(listIncrease,indexName+"_increase");
+                
             }
         }
     }
